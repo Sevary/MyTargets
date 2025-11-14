@@ -16,21 +16,24 @@
 buildscript {
     ext.kotlinVersion = '1.8.20'
     repositories {
-        jcenter()
         mavenCentral()
         google()
+        maven { url 'https://plugins.gradle.org/m2/' }
         maven { url 'https://jitpack.io' }
+        maven { url 'https://repo.maven.apache.org/maven2' } // explicit central
+        //jcenter()
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:8.0.2'
-        classpath  'com.getkeepsafe.dexcount:dexcount-gradle-plugin:4.0.0'
+        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:4.0.0'
         classpath 'com.google.gms:google-services:4.3.15'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.9'
         classpath 'com.google.firebase:firebase-plugins:2.0.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath("androidx.navigation:navigation-safe-args-gradle-plugin:2.7.1")
         classpath "com.github.ben-manes:gradle-versions-plugin:0.46.0"
+        //classpath "org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r"
     }
 }
 
@@ -45,12 +48,13 @@ allprojects {
         jcenter()
         mavenCentral()
         google()
+        maven { url 'https://plugins.gradle.org/m2/' }
         maven { url 'https://jitpack.io' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url 'https://clojars.org/repo/' }
     }
 }
 
-apply from: 'tools/script-git-version.gradle'
+//apply from: 'tools/script-git-version.gradle'  // Dependencies problems with Grgit
 apply from: 'tools/script-dependency-updates.gradle'
 apply from: 'tools/script-keystore-fallback.gradle'

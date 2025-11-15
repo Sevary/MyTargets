@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base app theme using MaterialComponents Bridge to keep older AppCompat attrs working -->
+
     <style name="AppBaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
         <!-- Keep your existing color definitions or add them if missing -->
         <item name="colorPrimary">@color/md_green_500</item>
@@ -15,20 +15,12 @@
         <item name="colorSurface">@color/md_white_1000</item>
         <item name="colorOnSurface">@color/md_blue_grey_900</item>
 
+        <item name="android:statusBarColor">@color/colorPrimaryVariant</item>
+        <item name="android:navigationBarColor">@color/colorPrimary</item>
+        <!-- Transparent navigation bar -->
+        <!--<item name="android:navigationBarColor">@android:color/transparent</item>-->
+        <!--<item name="android:windowTranslucentNavigation">true</item>-->
+
+
     </style>
-
-    <!-- Material variant theme so shared resources can reference AppTheme.Material -->
-    <style name="AppTheme.Material" parent="AppBaseTheme" />
-
-    <style name="AppTheme" parent="AppBaseTheme"/>
-
-    <!-- Toolbar variant if you had one -->
-    <style name="AppTheme.CustomToolbar" parent="AppBaseTheme">
-        <!-- Toolbar-specific overrides if needed -->
-    </style>
-
-    <style name="AppTheme.Material.Toolbar" parent="AppTheme.Material" />
-
-    <!-- (Optional) explicit Slider style -->
-    <style name="Widget.MyTargets.Slider" parent="Widget.MaterialComponents.Slider"/>
 </resources>

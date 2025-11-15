@@ -28,9 +28,12 @@ object ToolbarUtils {
     }
 
     private fun showUpAsX(activity: AppCompatActivity) {
-        val supportActionBar = activity.supportActionBar!!
-        supportActionBar.setDisplayHomeAsUpEnabled(true)
-        supportActionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp)
+        val supportActionBar = activity.supportActionBar
+        if (supportActionBar != null) {
+            supportActionBar.setDisplayHomeAsUpEnabled(true)
+            supportActionBar.setHomeAsUpIndicator(R.drawable.ic_close_white_24dp)
+        }
+        // If there's no ActionBar yet, we silently ignore to avoid crashes.
     }
 
     fun showHomeAsUp(fragment: Fragment) {
@@ -38,8 +41,11 @@ object ToolbarUtils {
     }
 
     fun showHomeAsUp(activity: AppCompatActivity) {
-        val supportActionBar = activity.supportActionBar!!
-        supportActionBar.setDisplayHomeAsUpEnabled(true)
+        val supportActionBar = activity.supportActionBar
+        if (supportActionBar != null) {
+            supportActionBar.setDisplayHomeAsUpEnabled(true)
+        }
+        // No ActionBar set: ignore.
     }
 
     fun setSupportActionBar(fragment: Fragment, toolbar: Toolbar) {
@@ -56,13 +62,17 @@ object ToolbarUtils {
     }
 
     fun setTitle(activity: AppCompatActivity, @StringRes title: Int) {
-        assert(activity.supportActionBar != null)
-        activity.supportActionBar!!.setTitle(title)
+        val ab = activity.supportActionBar
+        if (ab != null) {
+            ab.setTitle(title)
+        }
     }
 
     fun setTitle(activity: AppCompatActivity, title: String) {
-        assert(activity.supportActionBar != null)
-        activity.supportActionBar!!.title = title
+        val ab = activity.supportActionBar
+        if (ab != null) {
+            ab.title = title
+        }
     }
 
     fun setSubtitle(fragment: Fragment, subtitle: String) {
@@ -71,7 +81,9 @@ object ToolbarUtils {
     }
 
     fun setSubtitle(activity: AppCompatActivity, subtitle: String) {
-        assert(activity.supportActionBar != null)
-        activity.supportActionBar!!.subtitle = subtitle
+        val ab = activity.supportActionBar
+        if (ab != null) {
+            ab.subtitle = subtitle
+        }
     }
 }

@@ -72,7 +72,7 @@ class RoundFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        LocalBroadcastManager.getInstance(context!!).registerReceiver(
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(
             updateReceiver,
             IntentFilter(BROADCAST_UPDATE_TRAINING_FROM_REMOTE)
         )
@@ -80,7 +80,7 @@ class RoundFragment :
 
     override fun onDestroy() {
         super.onDestroy()
-        LocalBroadcastManager.getInstance(context!!).unregisterReceiver(updateReceiver)
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(updateReceiver)
     }
 
     override fun onCreateView(
@@ -89,10 +89,12 @@ class RoundFragment :
         savedInstanceState: Bundle?
     ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_list, container, false)
+        // Set the toolbar as the activity's ActionBar so we get a title bar
+        ToolbarUtils.setSupportActionBar(this, binding.toolbar)
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.addItemDecoration(
             DividerItemDecoration(
-                context!!,
+                requireContext(),
                 R.drawable.full_divider
             )
         )
@@ -107,8 +109,8 @@ class RoundFragment :
                 .start()
         }
 
-        roundId = arguments!!.getLongOrNull(ROUND_ID) ?:
-                throw IllegalStateException("Missing required argument round id!")
+        roundId = requireArguments().getLongOrNull(ROUND_ID)
+                ?: throw IllegalStateException("Missing required argument round id!")
 
         setHasOptionsMenu(true)
         return binding.root
@@ -147,7 +149,7 @@ class RoundFragment :
                 return true
             }
             R.id.action_comment -> {
-                MaterialDialog.Builder(context!!)
+                MaterialDialog.Builder(requireContext())
                     .title(R.string.comment)
                     .inputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE)
                     .input("", round!!.comment) { _, input ->
@@ -194,7 +196,7 @@ class RoundFragment :
         }
     }
 
-    private inner class EndViewHolder internal constructor(itemView: View) :
+    private inner class EndViewHolder(itemView: View) :
         SelectableViewHolder<AugmentedEnd>(
             itemView,
             selector,
@@ -214,7 +216,7 @@ class RoundFragment :
                     if (item.images.isEmpty()) View.INVISIBLE else View.VISIBLE
             binding.end.text = getString(R.string.end_n, item.end.index + 1)
             binding.endDetails.text = item.end.score.format(
-                Utils.getCurrentLocale(context!!),
+                Utils.getCurrentLocale(requireContext()),
                 SettingsManager.scoreConfiguration
             )
         }

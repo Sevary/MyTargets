@@ -32,7 +32,7 @@ import de.dreier.mytargets.utils.ToolbarUtils
 import de.dreier.mytargets.utils.Utils
 import de.dreier.mytargets.views.selector.DistanceSelector
 import de.dreier.mytargets.views.selector.TargetSelector
-import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
+//import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar
 
 class EditRoundFragment : EditFragmentBase() {
     private var trainingId: Long = 0
@@ -50,31 +50,20 @@ class EditRoundFragment : EditFragmentBase() {
         binding = DataBindingUtil
             .inflate(inflater, R.layout.fragment_edit_round, container, false)
 
-        trainingId = arguments!!.getLong(ITEM_ID)
-        if (arguments!!.containsKey(ROUND_ID)) {
-            roundId = arguments!!.getLong(ROUND_ID)
+        trainingId = requireArguments().getLong(ITEM_ID)
+        if (requireArguments().containsKey(ROUND_ID)) {
+            roundId = requireArguments().getLong(ROUND_ID)
         }
 
         ToolbarUtils.setSupportActionBar(this, binding.toolbar)
         ToolbarUtils.showUpAsX(this)
         setHasOptionsMenu(true)
 
-        binding.arrows.setOnProgressChangeListener(object :
-            DiscreteSeekBar.OnProgressChangeListener {
-            override fun onProgressChanged(
-                seekBar: DiscreteSeekBar,
-                value: Int,
-                fromUser: Boolean
-            ) {
-                updateArrowsLabel()
-            }
+        // Material Slider change listener
+        binding.arrows.addOnChangeListener { _, _, _ ->
+            updateArrowsLabel()
+        }
 
-            override fun onStartTrackingTouch(seekBar: DiscreteSeekBar) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: DiscreteSeekBar) {}
-        })
         binding.target.setOnClickListener { selectedItem, index ->
             val fixedType =
                 if (roundId == null) TargetListFragment.EFixedType.NONE else TargetListFragment.EFixedType.TARGET
@@ -111,7 +100,7 @@ class EditRoundFragment : EditFragmentBase() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        Utils.setupFabTransform(activity!!, binding.root)
+        Utils.setupFabTransform(requireActivity(), binding.root)
     }
 
     override fun onSave() {
@@ -124,7 +113,7 @@ class EditRoundFragment : EditFragmentBase() {
             navigationController.navigateToCreateEnd(round)
         } else {
             onSaveRound()
-            activity!!.overridePendingTransition(R.anim.left_in, R.anim.right_out)
+            requireActivity().overridePendingTransition(R.anim.left_in, R.anim.right_out)
         }
     }
 
@@ -135,7 +124,7 @@ class EditRoundFragment : EditFragmentBase() {
         if (roundId == null) {
             round = Round()
             round.trainingId = trainingId
-            round.shotsPerEnd = binding.arrows.progress
+            round.shotsPerEnd = binding.arrows.value.toInt()
             round.maxEndCount = null
             round.index = roundDAO.loadRounds(training.id).size
         } else {
@@ -152,17 +141,16 @@ class EditRoundFragment : EditFragmentBase() {
     }
 
     private fun updateArrowsLabel() {
+        val arrows = binding.arrows.value.toInt()
         binding.arrowsLabel.text = resources
-            .getQuantityString(
-                R.plurals.arrow, binding.arrows.progress,
-                binding.arrows.progress
-            )
+            .getQuantityString(R.plurals.arrow, arrows, arrows)
     }
 
     private fun loadRoundDefaultValues() {
         binding.distance.setItem(SettingsManager.distance)
-        binding.arrows.progress = SettingsManager.shotsPerEnd
+        binding.arrows.value = SettingsManager.shotsPerEnd.toFloat()
         binding.target.setItem(SettingsManager.target)
+        updateArrowsLabel()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

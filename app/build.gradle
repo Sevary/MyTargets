@@ -22,8 +22,8 @@ plugins {
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'androidx.navigation.safeargs'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
+//apply plugin: 'com.google.gms.google-services'
+//apply plugin: 'com.google.firebase.crashlytics'
 apply plugin: 'kotlin-parcelize'
 
 
@@ -39,7 +39,7 @@ android {
     }
     defaultConfig {
         applicationId 'de.dreier.mytargets'
-        minSdkVersion 16
+        minSdkVersion 21
         compileSdk compileSdkVersionCode
         targetSdkVersion 34
         versionCode 336
@@ -94,7 +94,8 @@ android {
         debug {
             applicationIdSuffix '.debug'
             signingConfig signingConfigs.debug
-            testCoverageEnabled true
+            enableUnitTestCoverage true
+            enableAndroidTestCoverage true
         }
         release {
             signingConfig signingConfigs.release
@@ -143,6 +144,21 @@ android {
     testOptions {
         execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
+
+    kapt {
+        javacOptions {
+            // Required for Kapt to work with JDK 17+
+            option("--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED")
+            option("--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED")
+            option("--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED")
+            option("--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED")
+            option("--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED")
+            option("--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED")
+            option("--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED")
+            option("--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED")
+            option("--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED")
+        }
+    }
 }
 
 // apply from: '../tools/script-play-store.gradle'
@@ -150,7 +166,8 @@ android {
 dependencies {
     Map<String, String> dependencies = rootProject.ext.dependencies
 
-    implementation dependencies.kotlinStdlibJdk7
+    //implementation dependencies.kotlinStdlibJdk7
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
     implementation dependencies.androidxCore
     implementation dependencies.androidxCoreUtils
@@ -199,13 +216,17 @@ dependencies {
     implementation dependencies.androidState
     kapt dependencies.androidStateProcessor
 
-    implementation dependencies.permissionsDispatcher
-    kapt dependencies.permissionsDispatcherProcessor
+    //implementation dependencies.permissionsDispatcher
+    //kapt dependencies.permissionsDispatcherProcessor
+    implementation "com.github.permissions-dispatcher:permissionsdispatcher:4.9.2"
+    kapt "com.github.permissions-dispatcher:permissionsdispatcher-processor:4.9.2"
 
 
     implementation dependencies.mpAndroidChart
 
-    implementation dependencies.discreteSeekbar
+    //implementation dependencies.discreteSeekbar
+    //implementation "com.github.bam-e22:discreteSeekBar:1.0.1"  // Alternate git
+    implementation 'com.google.android.material:material:1.13.0' // Added
 
     implementation dependencies.easyImage
 
@@ -225,7 +246,8 @@ dependencies {
     implementation dependencies.androidLanguages
 
 
-    implementation dependencies.signaturePad
+    //implementation dependencies.signaturePad
+    implementation 'com.github.gcacace:signature-pad:1.3.1' // ADD THIS
 
     implementation dependencies.archLifecycleExtensions
     kapt dependencies.archLifecycleCompiler

@@ -16,7 +16,7 @@
 
 <resources>
     <!-- Base application theme. -->
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppBaseTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -32,13 +32,13 @@
         <item name="windowActionBarOverlay">true</item>
     </style>
 
-    <style name="AppBaseTheme.CustomToolbar">
+    <style name="AppBaseTheme.CustomToolbar" parent="AppBaseTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="AppBaseTheme.CustomToolbar.Translucent">
+    <style name="AppBaseTheme.CustomToolbar.Translucent" parent="AppBaseTheme.CustomToolbar">
         <item name="android:windowActionBarOverlay">true</item>
         <item name="windowActionBarOverlay">true</item>
     </style>

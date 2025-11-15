@@ -51,6 +51,7 @@ android {
 dependencies {
     Map<String, String> dependencies = rootProject.ext.dependencies
 
+    api "com.google.android.material:material:1.13.0"
     api dependencies.androidxV4
     api dependencies.androidxFragment
     api dependencies.androidxCoreUi

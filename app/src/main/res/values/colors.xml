@@ -20,6 +20,23 @@
     <color name="colorPrimaryDark">@color/md_green_700</color>
     <color name="colorAccent">@color/md_orange_A400</color>
 
+    <!-- MaterialComponents attributes (added to support Slider and other Material widgets) -->
+    <!-- Map to existing colors where appropriate -->
+    <color name="colorPrimaryVariant">@color/colorPrimaryDark</color>
+    <color name="colorOnPrimary">@android:color/white</color>
+
+    <color name="colorSecondary">@color/colorAccent</color>
+    <color name="colorSecondaryVariant">@color/colorAccent</color>
+    <color name="colorOnSecondary">@android:color/white</color>
+
+    <color name="colorSurface">@android:color/white</color>
+    <color name="colorOnSurface">@color/primaryTextDefaultMaterialLight</color>
+
+    <color name="colorBackground">@color/launcherBackground</color>
+    <color name="colorOnBackground">@color/title_text_color</color>
+
+    <color name="colorError">@color/md_red_600</color>
+
     <color name="dividerColor">#1F000000</color>
     <color name="dim_overlay">#55000000</color>
 

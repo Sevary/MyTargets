@@ -98,7 +98,7 @@ object Migration26 : Migration(25, 26) {
         childTable: String,
         joinColumn: String
     ): String {
-        return "CREATE TRIGGER insert_${parentTable.toLowerCase()}_sum_score " +
+        return "CREATE TRIGGER insert_${parentTable.lowercase()}_sum_score " +
                 "AFTER INSERT ON `$childTable` " +
                 "BEGIN " +
                 getUpdateQuery(parentTable, childTable, joinColumn, "NEW") +
@@ -110,7 +110,7 @@ object Migration26 : Migration(25, 26) {
         childTable: String,
         joinColumn: String
     ): String {
-        return "CREATE TRIGGER update_${parentTable.toLowerCase()}_sum_score " +
+        return "CREATE TRIGGER update_${parentTable.lowercase()}_sum_score " +
                 "AFTER UPDATE OF reachedPoints, totalPoints, shotCount ON `$childTable` " +
                 "BEGIN " +
                 getUpdateQuery(parentTable, childTable, joinColumn, "NEW") +
@@ -122,7 +122,7 @@ object Migration26 : Migration(25, 26) {
         childTable: String,
         joinColumn: String
     ): String {
-        return "CREATE TRIGGER delete_${parentTable.toLowerCase()}_sum_score " +
+        return "CREATE TRIGGER delete_${parentTable.lowercase()}_sum_score " +
                 "AFTER DELETE ON `$childTable` " +
                 "BEGIN " +
                 getUpdateQuery(parentTable, childTable, joinColumn, "OLD") +

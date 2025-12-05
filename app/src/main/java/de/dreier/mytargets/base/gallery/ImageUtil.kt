@@ -82,4 +82,9 @@ object ImageUtil {
             return "exif_rotate_" + path.hashCode()
         }
     }
+
+    fun rotate90Clockwise(bmp: Bitmap): Bitmap {
+        val matrix = Matrix().apply { postRotate(90f) }
+        return Bitmap.createBitmap(bmp, 0, 0, bmp.width, bmp.height, matrix, true)
+    }
 }

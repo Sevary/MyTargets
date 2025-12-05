@@ -174,7 +174,7 @@ class InputActivity : ChildActivityBase(), TargetViewBase.OnEndFinishedListener,
                     if (i * 2 + 1 >= arr.size) {
                         break
                     }
-                    val nx = arr[i * 2]      // 0..1
+                    val nx = arr[i * 2]      // 0..1 - may be outside (if detection is off target)
                     val ny = arr[i * 2 + 1]  // 0..1
 
                     // Convert to -1..1 range, center origin

@@ -44,6 +44,9 @@ ext {
             testSupport          : '1.2.0',
             threeTenABP          : '1.2.1',
             timber               : '4.7.1',
+            tensorflowLite        : '2.12.0',
+            tensorflowLiteSupport : '0.4.4',
+            tensorflowLiteMetadata: '0.4.4',
             truth                : '1.0',
             uiAutomator          : '2.2.0-alpha1',
             versionInfoDialog    : '0.1.0'
@@ -160,6 +163,10 @@ ext {
 
             threeTenABP                   : "com.jakewharton.threetenabp:threetenabp:1.4.6",
 
-            timber                        : "com.jakewharton.timber:timber:4.7.1"
+            timber                        : "com.jakewharton.timber:timber:4.7.1",
+
+            tensorflowLite                : "org.tensorflow:tensorflow-lite:$libraryVersion.tensorflowLite",
+            tensorflowLiteSupport         : "org.tensorflow:tensorflow-lite-support:$libraryVersion.tensorflowLiteSupport",
+            tensorflowLiteMetadata        : "org.tensorflow:tensorflow-lite-metadata:$libraryVersion.tensorflowLiteMetadata"
     ]
 }

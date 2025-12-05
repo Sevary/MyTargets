@@ -60,9 +60,13 @@ class GalleryActivity : ChildActivityBase() {
     lateinit var imageList: ImageList
 
     private lateinit var binding: ActivityGalleryBinding
+    private var mlProcessor: MlTargetProcessor? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mlProcessor = MlTargetProcessor(applicationContext)
+
         Timber.d("onCreate: savedInstanceState=${savedInstanceState != null}")
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_gallery)
@@ -178,7 +182,7 @@ class GalleryActivity : ChildActivityBase() {
         // Replace the commented coroutine with a simple background task that uses the mock processor.
         AsyncTask.execute {
             // Run pipeline (mock)
-            val pipelineResult = MlTargetProcessor(applicationContext).runPipeline(file)
+            val pipelineResult = mlProcessor?.runPipeline(file)
             if (pipelineResult == null) return@execute
 
             try {
@@ -372,6 +376,11 @@ class GalleryActivity : ChildActivityBase() {
             binding.pager.setCurrentItem(pos, true)
             Timber.d("goToImage: setCurrentItem=$pos")
         }
+    }
+
+    override fun onDestroy() {
+        mlProcessor?.close()
+        super.onDestroy()
     }
 
     companion object {

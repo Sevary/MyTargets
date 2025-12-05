@@ -57,6 +57,7 @@ import de.dreier.mytargets.shared.models.sum
 import de.dreier.mytargets.shared.views.TargetViewBase
 import de.dreier.mytargets.shared.views.TargetViewBase.EInputMethod
 import de.dreier.mytargets.shared.wearable.WearableClientBase.Companion.BROADCAST_TIMER_SETTINGS_FROM_REMOTE
+import de.dreier.mytargets.shared.targets.drawable.TargetImpactDrawable
 import de.dreier.mytargets.utils.*
 import de.dreier.mytargets.utils.MobileWearableClient.Companion.BROADCAST_UPDATE_TRAINING_FROM_REMOTE
 import de.dreier.mytargets.utils.Utils.getCurrentLocale
@@ -64,6 +65,8 @@ import de.dreier.mytargets.utils.transitions.FabTransform
 import de.dreier.mytargets.utils.transitions.TransitionAdapter
 import org.threeten.bp.LocalTime
 import java.io.File
+import kotlin.times
+import kotlin.unaryMinus
 
 class InputActivity : ChildActivityBase(), TargetViewBase.OnEndFinishedListener,
     TargetView.OnEndUpdatedListener, LoaderManager.LoaderCallbacks<LoaderResult> {
@@ -154,6 +157,41 @@ class InputActivity : ChildActivityBase(), TargetViewBase.OnEndFinishedListener,
                 File(filesDir, image).delete()
             }
             endDAO.replaceImages(currentEnd.end, currentEnd.images)
+
+            // Update shots from detected arrows (ML)
+            val arr = data.getFloatArrayExtra(GalleryActivity.EXTRA_DETECTED_ARROWS)
+            if (arr != null && arr.isNotEmpty()) {
+                val target = this.data!!.currentRound.round.target
+                val arrowDiameter = this.data!!.arrowDiameter
+                val impactDrawable = TargetImpactDrawable(target).apply {
+                    setArrowDiameter(arrowDiameter, SettingsManager.inputArrowDiameterScale)
+                }
+
+                currentEnd.end.exact = true  // Switch to plotting mode, since we have exact coordinates
+
+                var i = 0
+                for (shot in currentEnd.shots) {
+                    if (i * 2 + 1 >= arr.size) {
+                        break
+                    }
+                    val nx = arr[i * 2]      // 0..1
+                    val ny = arr[i * 2 + 1]  // 0..1
+
+                    // Convert to -1..1 range, center origin
+                    shot.x = nx * 2f - 1f
+                    shot.y = ny * 2f - 1f
+
+                    // Update scoring ring automatically
+                    shot.scoringRing = Shot.NOTHING_SELECTED
+                    shot.scoringRing = impactDrawable.getZoneFromPoint(shot.x, shot.y)
+                    i++
+                }
+
+                saveCurrentEnd()  // Save updated shots
+                targetView?.replaceWithEnd(currentEnd.shots, currentEnd.end.exact)  // Redraw
+                onEndUpdated(currentEnd.shots)  // Trigger UI update summary
+            }
+
             updateEnd()
             invalidateOptionsMenu()
         }
@@ -235,11 +273,14 @@ class InputActivity : ChildActivityBase(), TargetViewBase.OnEndFinishedListener,
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            // Show current row gallery
             R.id.action_photo -> {
                 val imageList = ImageList(data!!.currentEnd.images)
                 val title = getString(R.string.end_n, data!!.endIndex + 1)
                 navigationController.navigateToGallery(imageList, title, GALLERY_REQUEST_CODE)
             }
+
+            // Add comment
             R.id.action_comment -> {
                 MaterialDialog.Builder(this)
                     .title(R.string.comment)
@@ -251,6 +292,8 @@ class InputActivity : ChildActivityBase(), TargetViewBase.OnEndFinishedListener,
                     .negativeText(android.R.string.cancel)
                     .show()
             }
+
+            // Open timer
             R.id.action_timer -> {
                 val timerEnabled = !SettingsManager.timerEnabled
                 SettingsManager.timerEnabled = timerEnabled

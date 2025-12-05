@@ -27,6 +27,7 @@ class CustomViewPager : ViewPager {
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {
         try {
+            android.util.Log.d("CustomViewPager", "onTouchEvent: ev=$ev")
             return super.onTouchEvent(ev)
         } catch (ex: IllegalArgumentException) {
             ex.printStackTrace()
@@ -37,6 +38,7 @@ class CustomViewPager : ViewPager {
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         try {
+            android.util.Log.d("CustomViewPager", "onInterceptTouchEvent: ev=$ev")
             return super.onInterceptTouchEvent(ev)
         } catch (ex: IllegalArgumentException) {
             ex.printStackTrace()

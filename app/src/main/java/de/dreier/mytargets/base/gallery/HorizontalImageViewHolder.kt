@@ -25,4 +25,10 @@ class HorizontalImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemVi
     var camera: ImageView = itemView.findViewById(R.id.camera)
     var image: ImageView = itemView.findViewById(R.id.iv)
 
+    init {
+        android.util.Log.d(
+            "HorizImageVH",
+            "constructor: cameraId=${camera.id} imageId=${image.id}"
+        )
+    }
 }

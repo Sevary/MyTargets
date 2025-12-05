@@ -32,6 +32,11 @@ import de.dreier.mytargets.R
 import de.dreier.mytargets.utils.ImageList
 import de.dreier.mytargets.utils.Utils
 import java.io.File
+import kotlin.collections.get
+import kotlin.compareTo
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import androidx.exifinterface.media.ExifInterface
 
 class ViewPagerAdapter(
     private val activity: Activity,
@@ -56,25 +61,36 @@ class ViewPagerAdapter(
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val itemView = layoutInflater.inflate(R.layout.pager_item, container, false)
-
         val imageView = itemView.findViewById<PhotoView>(R.id.iv)
         val image = images[position]
-        Picasso.with(activity)
-            .load(File(activity.filesDir, image.fileName))
-            .fit()
-            .centerInside()
-            .into(imageView, object : Callback {
-                override fun onSuccess() {
+        val file = File(activity.filesDir, image.fileName)
+        android.util.Log.d("ViewPagerAdapter", "instantiateItem: pos=$position file=${file.absolutePath} exists=${file.exists()}")
+
+        imageView.post {
+            val targetW = if (imageView.width > 0) imageView.width else container.width
+            val targetH = if (imageView.height > 0) imageView.height else container.height
+            android.util.Log.d("ViewPagerAdapter", "instantiateItem: targetSize w=$targetW h=$targetH pos=$position")
+
+            try {
+                val bmp = de.dreier.mytargets.base.gallery.ImageUtil.decodeSampledBitmapFromFile(file.absolutePath, targetW, targetH)
+                if (bmp != null) {
+                    imageView.setImageBitmap(bmp)
+                    android.util.Log.d("ViewPagerAdapter", "onSuccess: loaded pos=$position file=${file.absolutePath} bmp=${bmp.width}x${bmp.height}")
                     imageView.setOnPhotoTapListener { _, _, _ -> toggleToolbar() }
+                } else {
+                    android.util.Log.e("ViewPagerAdapter", "onError: decode returned null pos=$position file=${file.absolutePath}")
                 }
-
-                override fun onError() {
-
-                }
-            })
+            } catch (e: Throwable) {
+                android.util.Log.e("ViewPagerAdapter", "onError: failed to decode pos=$position file=${file.absolutePath}", e)
+            }
+        }
 
         container.addView(itemView)
         return itemView
+    }
+
+    private fun applyExifRotationIfNeeded(bmp: Bitmap, path: String): Bitmap {
+        return de.dreier.mytargets.base.gallery.ImageUtil.applyExifRotationIfNeeded(bmp, path)
     }
 
     private fun toggleToolbar() {

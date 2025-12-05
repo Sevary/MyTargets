@@ -29,6 +29,7 @@ import com.squareup.picasso.Transformation
 import de.dreier.mytargets.R
 import de.dreier.mytargets.base.gallery.HorizontalImageViewHolder
 import de.dreier.mytargets.utils.ImageList
+import timber.log.Timber
 import java.io.File
 import kotlin.math.max
 
@@ -54,18 +55,10 @@ class HorizontalListAdapters(
         if (pos == images.size()) {
             holder.image.visibility = View.GONE
             holder.camera.visibility = View.VISIBLE
-            android.util.Log.d("HorizListAdapter", "bind: pos=$pos isCamera=true")
         } else {
             holder.camera.visibility = View.GONE
             holder.image.visibility = View.VISIBLE
             val file = File(activity.filesDir, images[pos].fileName)
-            android.util.Log.d("HorizListAdapter", "bind: pos=$pos file=${file.absolutePath} exists=${file.exists()}")
-
-            try {
-                android.util.Log.d("HorizListAdapter", "fileSize=${file.length()} bytes for pos=$pos")
-            } catch (e: Exception) {
-                android.util.Log.d("HorizListAdapter", "fileSize unknown for pos=$pos")
-            }
 
             // cancel previous request and clear image to avoid recycled-view issues
             try {
@@ -81,25 +74,23 @@ class HorizontalListAdapters(
             val targetH = if (holder.image.height > 0) holder.image.height else defaultPx
             val safeW = max(1, targetW)
             val safeH = max(1, targetH)
-            android.util.Log.d("HorizListAdapter", "picasso: target w=$safeW h=$safeH pos=$pos")
 
             // Quick bounds decode to decide whether to do manual downsample
             val quickBounds = BitmapFactory.Options()
             quickBounds.inJustDecodeBounds = true
             BitmapFactory.decodeFile(file.absolutePath, quickBounds)
-            android.util.Log.d("HorizListAdapter", "quick bounds: w=${quickBounds.outWidth} h=${quickBounds.outHeight} pos=$pos")
+            Timber.d("quick bounds: w=${quickBounds.outWidth} h=${quickBounds.outHeight} pos=$pos")
 
             val largeThresholdMultiplier = 4
             val shouldManual = quickBounds.outWidth > safeW * largeThresholdMultiplier || quickBounds.outHeight > safeH * largeThresholdMultiplier
             if (shouldManual) {
-                android.util.Log.d("HorizListAdapter", "performing manual downsample for pos=$pos")
+                Timber.d("performing manual downsample for pos=$pos")
                 try {
                     val bmp = de.dreier.mytargets.base.gallery.ImageUtil.decodeSampledBitmapFromFile(file.absolutePath, safeW, safeH)
                     if (bmp != null) {
                         holder.image.setImageBitmap(bmp)
-                        android.util.Log.d("HorizListAdapter", "manual decode success: pos=$pos bmp=${bmp.width}x${bmp.height}")
                     } else {
-                        android.util.Log.e("HorizListAdapter", "manual decode failed: pos=$pos file=${file.absolutePath}")
+                        Timber.d("manual decode failed: pos=$pos file=${file.absolutePath}")
                         Picasso.with(activity)
                             .load(file)
                             .transform(de.dreier.mytargets.base.gallery.ImageUtil.ExifRotateTransformation(file.absolutePath))
@@ -109,16 +100,16 @@ class HorizontalListAdapters(
                             .config(Bitmap.Config.RGB_565)
                             .into(holder.image, object : com.squareup.picasso.Callback {
                                 override fun onSuccess() {
-                                    android.util.Log.d("HorizListAdapter", "onSuccess (fallback): pos=$pos file=${file.absolutePath}")
+                                    Timber.d("onSuccess (fallback): pos=$pos file=${file.absolutePath}")
                                 }
 
                                 override fun onError() {
-                                    android.util.Log.d("HorizListAdapter", "onError (fallback): pos=$pos file=${file.absolutePath}")
+                                    Timber.d("onError (fallback): pos=$pos file=${file.absolutePath}")
                                 }
                             })
                      }
                  } catch (e: Throwable) {
-                     android.util.Log.e("HorizListAdapter", "manual decode exception for pos=$pos file=${file.absolutePath}", e)
+                     Timber.e(e, "manual decode exception for pos=$pos file=${file.absolutePath}")
                      // Picasso fallback with rotation transformation
                     Picasso.with(activity)
                         .load(file)
@@ -129,11 +120,11 @@ class HorizontalListAdapters(
                         .config(Bitmap.Config.RGB_565)
                         .into(holder.image, object : com.squareup.picasso.Callback {
                             override fun onSuccess() {
-                                android.util.Log.d("HorizListAdapter", "onSuccess (fallback after exception): pos=$pos file=${file.absolutePath}")
+                                Timber.d("onSuccess (fallback after exception): pos=$pos file=${file.absolutePath}")
                             }
 
                             override fun onError() {
-                                android.util.Log.d("HorizListAdapter", "onError (fallback after exception): pos=$pos file=${file.absolutePath}")
+                                Timber.d("onError (fallback after exception): pos=$pos file=${file.absolutePath}")
                             }
                         })
                  }
@@ -147,21 +138,21 @@ class HorizontalListAdapters(
                     .config(Bitmap.Config.RGB_565)
                     .into(holder.image, object : com.squareup.picasso.Callback {
                         override fun onSuccess() {
-                            android.util.Log.d("HorizListAdapter", "onSuccess: pos=$pos file=${file.absolutePath}")
+                            Timber.d("onSuccess: pos=$pos file=${file.absolutePath}")
                         }
 
                         override fun onError() {
-                            android.util.Log.d("HorizListAdapter", "onError: pos=$pos file=${file.absolutePath} - falling back to manual decode")
+                            Timber.d("onError: pos=$pos file=${file.absolutePath} - falling back to manual decode")
                             try {
                                 val bmp = de.dreier.mytargets.base.gallery.ImageUtil.decodeSampledBitmapFromFile(file.absolutePath, safeW, safeH)
                                 if (bmp != null) {
                                     holder.image.setImageBitmap(bmp)
-                                    android.util.Log.d("HorizListAdapter", "manual decode success: pos=$pos bmp=${bmp.width}x${bmp.height}")
+                                    Timber.d("manual decode success: pos=$pos bmp=${bmp.width}x${bmp.height}")
                                 } else {
-                                    android.util.Log.e("HorizListAdapter", "manual decode failed: pos=$pos file=${file.absolutePath}")
+                                    Timber.e("manual decode failed: pos=$pos file=${file.absolutePath}")
                                 }
                             } catch (e: Throwable) {
-                                android.util.Log.e("HorizListAdapter", "manual decode exception for pos=$pos file=${file.absolutePath}", e)
+                                Timber.e(e, "manual decode exception for pos=$pos file=${file.absolutePath}")
                             }
                         }
                     })
@@ -186,7 +177,7 @@ class HorizontalListAdapters(
     }
 
     fun setSelectedItem(position: Int) {
-        android.util.Log.d("HorizListAdapter", "setSelectedItem: pos=$position")
+        Timber.d("setSelectedItem: pos=$position")
         selectedItem = position
         notifyDataSetChanged()
     }

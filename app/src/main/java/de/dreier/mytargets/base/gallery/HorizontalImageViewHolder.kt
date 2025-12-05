@@ -20,15 +20,13 @@ import android.view.View
 import android.widget.ImageView
 
 import de.dreier.mytargets.R
+import timber.log.Timber
 
 class HorizontalImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var camera: ImageView = itemView.findViewById(R.id.camera)
     var image: ImageView = itemView.findViewById(R.id.iv)
 
     init {
-        android.util.Log.d(
-            "HorizImageVH",
-            "constructor: cameraId=${camera.id} imageId=${image.id}"
-        )
+        Timber.d("constructor: cameraId=${camera.id} imageId=${image.id}")
     }
 }

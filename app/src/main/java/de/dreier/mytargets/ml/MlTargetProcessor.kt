@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.BitmapFactory
 import android.graphics.PointF
+import de.dreier.mytargets.base.gallery.ImageUtil
 import java.io.File
 import java.util.*
 
@@ -18,14 +19,14 @@ class MlTargetProcessor(private val context: Context) {
     fun runPipeline(imageFile: File): MlPipelineResult? {
         // Load source image
         val src = BitmapFactory.decodeFile(imageFile.absolutePath) ?: return null
+        val img = ImageUtil.applyExifRotationIfNeeded(src, imageFile.absolutePath)
 
         // 2x center zoom: crop center half-size, then scale back to original size
-        val cropW = (src.width / 2).coerceAtLeast(1)
-        val cropH = (src.height / 2).coerceAtLeast(1)
-        val left = ((src.width - cropW) / 2)
-        val top = ((src.height - cropH) / 2)
-        val cropped = Bitmap.createBitmap(src, left, top, cropW, cropH)
-        //val processed = Bitmap.createScaledBitmap(cropped, src.width, src.height, true)
+        val cropW = (img.width / 2).coerceAtLeast(1)
+        val cropH = (img.height / 2).coerceAtLeast(1)
+        val left = ((img.width - cropW) / 2)
+        val top = ((img.height - cropH) / 2)
+        val cropped = Bitmap.createBitmap(img, left, top, cropW, cropH)
 
         // Produce 3 random arrows (normalized coordinates 0..1)
         val rnd = Random()

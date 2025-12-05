@@ -37,6 +37,7 @@ import kotlin.compareTo
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import androidx.exifinterface.media.ExifInterface
+import timber.log.Timber
 
 class ViewPagerAdapter(
     private val activity: Activity,
@@ -64,24 +65,24 @@ class ViewPagerAdapter(
         val imageView = itemView.findViewById<PhotoView>(R.id.iv)
         val image = images[position]
         val file = File(activity.filesDir, image.fileName)
-        android.util.Log.d("ViewPagerAdapter", "instantiateItem: pos=$position file=${file.absolutePath} exists=${file.exists()}")
+        Timber.d("instantiateItem: pos=$position file=${file.absolutePath} exists=${file.exists()}")
 
         imageView.post {
             val targetW = if (imageView.width > 0) imageView.width else container.width
             val targetH = if (imageView.height > 0) imageView.height else container.height
-            android.util.Log.d("ViewPagerAdapter", "instantiateItem: targetSize w=$targetW h=$targetH pos=$position")
+            Timber.d("instantiateItem: targetSize w=$targetW h=$targetH pos=$position")
 
             try {
                 val bmp = de.dreier.mytargets.base.gallery.ImageUtil.decodeSampledBitmapFromFile(file.absolutePath, targetW, targetH)
                 if (bmp != null) {
                     imageView.setImageBitmap(bmp)
-                    android.util.Log.d("ViewPagerAdapter", "onSuccess: loaded pos=$position file=${file.absolutePath} bmp=${bmp.width}x${bmp.height}")
+                    Timber.d("onSuccess: loaded pos=$position file=${file.absolutePath} bmp=${bmp.width}x${bmp.height}")
                     imageView.setOnPhotoTapListener { _, _, _ -> toggleToolbar() }
                 } else {
-                    android.util.Log.e("ViewPagerAdapter", "onError: decode returned null pos=$position file=${file.absolutePath}")
+                    Timber.e("onError: decode returned null pos=$position file=${file.absolutePath}")
                 }
             } catch (e: Throwable) {
-                android.util.Log.e("ViewPagerAdapter", "onError: failed to decode pos=$position file=${file.absolutePath}", e)
+                Timber.e(e, "onError: failed to decode pos=$position file=${file.absolutePath}")
             }
         }
 

@@ -19,6 +19,7 @@ import android.content.Context
 import androidx.viewpager.widget.ViewPager
 import android.util.AttributeSet
 import android.view.MotionEvent
+import timber.log.Timber
 
 class CustomViewPager : ViewPager {
     constructor(context: Context) : super(context)
@@ -27,7 +28,7 @@ class CustomViewPager : ViewPager {
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {
         try {
-            android.util.Log.d("CustomViewPager", "onTouchEvent: ev=$ev")
+            Timber.d("onTouchEvent: ev=$ev")
             return super.onTouchEvent(ev)
         } catch (ex: IllegalArgumentException) {
             ex.printStackTrace()
@@ -38,7 +39,7 @@ class CustomViewPager : ViewPager {
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         try {
-            android.util.Log.d("CustomViewPager", "onInterceptTouchEvent: ev=$ev")
+            Timber.d("onInterceptTouchEvent: ev=$ev")
             return super.onInterceptTouchEvent(ev)
         } catch (ex: IllegalArgumentException) {
             ex.printStackTrace()

@@ -3,12 +3,11 @@ package de.dreier.mytargets.base.gallery
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import com.squareup.picasso.Transformation
+import timber.log.Timber
 
 object ImageUtil {
-    private const val TAG = "ImageUtil"
 
     fun decodeSampledBitmapFromFile(path: String, reqWidth: Int, reqHeight: Int): Bitmap? {
         try {
@@ -29,12 +28,12 @@ object ImageUtil {
 
             val bmp = BitmapFactory.decodeFile(path, decodeOpts)
             if (bmp == null) {
-                Log.d(TAG, "decodeSampledBitmapFromFile returned null for $path")
+                Timber.d("decodeSampledBitmapFromFile returned null for $path")
                 return null
             }
             return applyExifRotationIfNeeded(bmp, path)
         } catch (e: Throwable) {
-            Log.e(TAG, "decodeSampledBitmapFromFile failed for $path", e)
+            Timber.e(e, "decodeSampledBitmapFromFile failed for $path")
             return null
         }
     }
@@ -58,7 +57,7 @@ object ImageUtil {
             }
             return rotated
         } catch (e: Exception) {
-            Log.d(TAG, "applyExifRotationIfNeeded: failed to apply rotation for $path", e)
+            Timber.e(e, "applyExifRotationIfNeeded: failed to apply rotation for $path")
             return bmp
         }
     }
@@ -74,7 +73,7 @@ object ImageUtil {
                 }
                 return rotated
             } catch (e: Exception) {
-                Log.d(TAG, "ExifRotateTransformation failed for $path", e)
+                Timber.e(e, "ExifRotateTransformation failed for $path")
                 return source
             }
         }
@@ -84,4 +83,3 @@ object ImageUtil {
         }
     }
 }
-

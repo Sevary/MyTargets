@@ -277,7 +277,7 @@ class InputActivity : ChildActivityBase(), TargetViewBase.OnEndFinishedListener,
             R.id.action_photo -> {
                 val imageList = ImageList(data!!.currentEnd.images)
                 val title = getString(R.string.end_n, data!!.endIndex + 1)
-                navigationController.navigateToGallery(imageList, title, GALLERY_REQUEST_CODE)
+                navigationController.navigateToGallery(imageList, title, GALLERY_REQUEST_CODE, this.data!!.currentEnd.shots.size)
             }
 
             // Add comment

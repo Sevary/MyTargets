@@ -63,12 +63,19 @@ class MlTargetProcessor(private val context: Context) {
 
         // Arrow detection
         var foundArrows = detectArrowsPrecise(cropped)
-        if (arrowDetectionLimit > 0 && foundArrows.size > arrowDetectionLimit)
-            foundArrows = foundArrows.sortedByDescending { it.score }.take(arrowDetectionLimit)
+        var additionalArrows = emptyList<Detection>()
+        if (arrowDetectionLimit > 0 && foundArrows.size > arrowDetectionLimit) {
+            val sorted = foundArrows.sortedByDescending { it.score }
+            additionalArrows = sorted.drop(arrowDetectionLimit)
+            foundArrows = sorted.take(arrowDetectionLimit)
+        }
+
         val arrowsPoints: List<PointF> = foundArrows.mapNotNull { it.keypoint }
+        val additionalArrowPoints: List<PointF> = additionalArrows.mapNotNull { it.keypoint }
 
         // Convert normalized arrows to pixel coordinates for drawing
         val arrowPixels = arrowsPoints.map { p -> PointF(p.x * cropped.width, p.y * cropped.height) }
+        val additionalArrowPixels = additionalArrowPoints.map { p -> PointF(p.x * cropped.width, p.y * cropped.height) }
 
         // Draw annotations (center + corners + arrows)
         val geometry = Geometry(PointF(center.x * cropped.width, center.y * cropped.height),
@@ -78,7 +85,7 @@ class MlTargetProcessor(private val context: Context) {
             PointF(targetBounds.box.right * cropped.width, targetBounds.box.bottom * cropped.height),
             PointF(targetBounds.box.left * cropped.width, targetBounds.box.bottom * cropped.height)
         ))
-        val annotated = drawAnnotations(cropped, geometry, arrowPixels)
+        val annotated = drawAnnotations(cropped, geometry, arrowPixels, additionalArrowPixels)
 
         // Norm so that (0,0) is top-left of target box and (1,1) is bottom-right, with linear interpolation towards center
         val arrowsNorm = adjustArrowPositions(arrowsPoints, targetBounds.box, center)
@@ -117,8 +124,8 @@ class MlTargetProcessor(private val context: Context) {
     }
 
     private fun detectArrows(bmp: Bitmap, threshold: Float = 0.1f): List<Detection> {
-        //val res = arrowModel?.process(bmp) ?: return emptyList()
-        val res = arrowScoreModel?.process(bmp) ?: return emptyList()
+        val res = arrowModel?.process(bmp) ?: return emptyList()
+        //val res = arrowScoreModel?.process(bmp) ?: return emptyList()
 
         if (res[0].keypoint != null)
             return res.filter { it.score >= threshold } .sortedByDescending { it.score }
@@ -184,6 +191,7 @@ class MlTargetProcessor(private val context: Context) {
                 }
             }
         } else {
+            // TODO: Improve by using distance matrix (and Hungarian algorithm?)
             for ((i, list) in lists.withIndex()) {
                 for ((j, det) in list.withIndex()) {
                     if (used[i][j]) continue
@@ -352,7 +360,8 @@ class MlTargetProcessor(private val context: Context) {
     private fun drawAnnotations(
         base: Bitmap,
         geometry: Geometry,
-        arrows: List<PointF>
+        arrows: List<PointF>,
+        additionalArrows: List<PointF> = emptyList()
     ): Bitmap {
         val out = base.copy(Bitmap.Config.ARGB_8888, true)
         val c = Canvas(out)
@@ -375,6 +384,13 @@ class MlTargetProcessor(private val context: Context) {
         arrows.forEach {
             c.drawCircle(it.x, it.y, 10f, paint)
         }
+
+        // Additional arrows
+        paint.color = Color.CYAN
+        additionalArrows.forEach {
+            c.drawCircle(it.x, it.y, 10f, paint)
+        }
+
         return out
     }
 

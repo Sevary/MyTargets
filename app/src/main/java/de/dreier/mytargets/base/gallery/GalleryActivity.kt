@@ -61,6 +61,7 @@ class GalleryActivity : ChildActivityBase() {
 
     private lateinit var binding: ActivityGalleryBinding
     private var mlProcessor: MlTargetProcessor? = null
+    private var maxArrowsDetection: Int = -1
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,6 +75,11 @@ class GalleryActivity : ChildActivityBase() {
         val title = intent.getStringExtra(EXTRA_TITLE)
         if (savedInstanceState == null) {
             imageList = intent.parcelableExtra(intent,EXTRA_IMAGES) ?: ImageList()
+        }
+
+        val maxArrows = intent.getIntExtra(MAX_ARROW_DETECTIONS, -1)
+        if (maxArrows > 0) {
+            maxArrowsDetection = maxArrows
         }
 
         setSupportActionBar(binding.toolbar)
@@ -182,7 +188,7 @@ class GalleryActivity : ChildActivityBase() {
         // Replace the commented coroutine with a simple background task that uses the mock processor.
         AsyncTask.execute {
             // Run pipeline (mock)
-            val pipelineResult = mlProcessor?.runPipeline(file)
+            val pipelineResult = mlProcessor?.runPipeline(file, maxArrowsDetection)
             if (pipelineResult == null) return@execute
 
             try {
@@ -310,7 +316,9 @@ class GalleryActivity : ChildActivityBase() {
                     for (f in imageFiles) {
                         Timber.d("onImagesPicked: file=${f.absolutePath}, exists=${f.exists()}")
                     }
-                    loadImages(imageFiles)
+
+                    val startMlAfter = (source == EasyImage.ImageSource.CAMERA_IMAGE)
+                    loadImages(imageFiles, startMlAfter)
                 }
 
                 override fun onCanceled(source: EasyImage.ImageSource?, type: Int) {
@@ -325,7 +333,7 @@ class GalleryActivity : ChildActivityBase() {
             })
     }
 
-    private fun loadImages(imageFile: List<File>) {
+    private fun loadImages(imageFile: List<File>, startMlAfter: Boolean = false) {
         Timber.d("loadImages: start, incoming=${imageFile.size}")
         object : AsyncTask<Void, Void, List<String>>() {
 
@@ -363,6 +371,10 @@ class GalleryActivity : ChildActivityBase() {
                 previewAdapter.setSelectedItem(currentPos)
                 binding.pager.currentItem = currentPos
                 Timber.d("onPostExecute: set currentItem=$currentPos")
+
+                if (startMlAfter) {
+                    processCurrentImage()
+                }
             }
         }.execute()
     }
@@ -386,6 +398,7 @@ class GalleryActivity : ChildActivityBase() {
     companion object {
         const val EXTRA_IMAGES = "images"
         const val EXTRA_TITLE = "title"
+        const val MAX_ARROW_DETECTIONS = "max_arrows"
         const val EXTRA_DETECTED_ARROWS = "detected_arrows" // FloatArray [x1,y1,x2,y2,...] normalized
 
         fun getResult(data: Intent): ImageList {

@@ -86,10 +86,11 @@ class NavigationController(
             .start()
     }
 
-    fun navigateToGallery(images: ImageList, title: String, requestCode: Int) {
+    fun navigateToGallery(images: ImageList, title: String, requestCode: Int, maxDetectArrows: Int = -1) {
         IntentWrapper(activity, fragment, GalleryActivity::class.java)
             .with(GalleryActivity.EXTRA_TITLE, title)
             .with(GalleryActivity.EXTRA_IMAGES, images)
+            .with(GalleryActivity.MAX_ARROW_DETECTIONS, maxDetectArrows)
             .forResult(requestCode)
             .start()
     }

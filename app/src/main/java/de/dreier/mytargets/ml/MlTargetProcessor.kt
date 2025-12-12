@@ -79,12 +79,10 @@ class MlTargetProcessor(private val context: Context) {
 
         // Draw annotations (center + corners + arrows)
         val geometry = Geometry(PointF(center.x * cropped.width, center.y * cropped.height),
-            listOf(
-            PointF(targetBounds.box.left * cropped.width, targetBounds.box.top * cropped.height),
-            PointF(targetBounds.box.right * cropped.width, targetBounds.box.top * cropped.height),
-            PointF(targetBounds.box.right * cropped.width, targetBounds.box.bottom * cropped.height),
-            PointF(targetBounds.box.left * cropped.width, targetBounds.box.bottom * cropped.height)
-        ))
+            RectF(targetBounds.box.left * cropped.width, targetBounds.box.top * cropped.height,
+                  targetBounds.box.right * cropped.width, targetBounds.box.bottom * cropped.height)
+        )
+
         val annotated = drawAnnotations(cropped, geometry, arrowPixels, additionalArrowPixels)
 
         // Norm so that (0,0) is top-left of target box and (1,1) is bottom-right, with linear interpolation towards center
@@ -127,6 +125,9 @@ class MlTargetProcessor(private val context: Context) {
         val res = arrowModel?.process(bmp) ?: return emptyList()
         //val res = arrowScoreModel?.process(bmp) ?: return emptyList()
 
+        if (res.isEmpty())
+            return emptyList()
+
         if (res[0].keypoint != null)
             return res.filter { it.score >= threshold } .sortedByDescending { it.score }
 
@@ -157,8 +158,11 @@ class MlTargetProcessor(private val context: Context) {
 
         for (i in 0 until 4) {
             val dets = detectArrows(bmp_rot, threshold)
-            val transformed = transformBack(dets, i)
-            lists.add(transformed)
+
+            if (dets.isNotEmpty()) {
+                val transformed = transformBack(dets, i)
+                lists.add(transformed)
+            }
 
             bmp_rot = ImageUtil.rotate90Clockwise(bmp_rot)
         }
@@ -333,7 +337,7 @@ class MlTargetProcessor(private val context: Context) {
         )
     }
 
-    data class Geometry(val center: PointF, val corners: List<PointF>)
+    data class Geometry(val center: PointF, val box: RectF)
 
     private fun cropWithPadding(bmp: Bitmap, boxF: RectF, padFraction: Float = 0.2f): Bitmap {
         val height = bmp.height
@@ -354,7 +358,11 @@ class MlTargetProcessor(private val context: Context) {
         val top = (rect.top - padY).coerceAtLeast(0)
         val right = (rect.right + padX).coerceAtMost(bmp.width)
         val bottom = (rect.bottom + padY).coerceAtMost(bmp.height)
-        return Bitmap.createBitmap(bmp, left, top, right - left, bottom - top)
+
+        val width = right - left
+        val height = bottom - top
+
+        return Bitmap.createBitmap(bmp, left, top, width, height)
     }
 
     private fun drawAnnotations(
@@ -369,13 +377,12 @@ class MlTargetProcessor(private val context: Context) {
             style = Paint.Style.STROKE
             strokeWidth = 4f
             color = Color.MAGENTA
+            alpha = 128
         }
-        // Corners
-        geometry.corners.forEach {
-            c.drawCircle(it.x, it.y, 12f, paint)
-        }
+        c.drawRect(geometry.box, paint)
         // Center
         paint.color = Color.GREEN
+        paint.alpha = 255
         c.drawCircle(geometry.center.x, geometry.center.y, 24f, paint)
 
         // Arrows
